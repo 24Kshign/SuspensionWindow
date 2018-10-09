@@ -156,9 +156,6 @@ class ApplicationLifecycle : Application.ActivityLifecycleCallbacks {
 
 ```
 
-本文代码已传至[Github](https://github.com/24Kshign/SuspensionWindow)，有需要的朋友可以下载下来看看。
-
-
 ### 参考
 
 - [Android 8.0 悬浮窗变动与用法](https://blog.csdn.net/mai763727999/article/details/78983375/)
