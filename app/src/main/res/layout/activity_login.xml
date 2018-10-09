@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/al_iv_image"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:src="@mipmap/ic_launcher_round"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!--<Button-->
+    <!--android:id="@+id/al_btn_start"-->
+    <!--android:layout_width="0dp"-->
+    <!--android:text="Start Service"-->
+    <!--app:layout_constraintHorizontal_chainStyle="spread"-->
+    <!--app:layout_constraintRight_toLeftOf="@id/al_btn_stop"-->
+    <!--app:layout_constraintLeft_toLeftOf="parent"-->
+    <!--android:layout_height="50dp" />-->
+
+    <!--<Button-->
+    <!--android:id="@+id/al_btn_stop"-->
+    <!--android:layout_width="0dp"-->
+    <!--android:text="Stop Service"-->
+    <!--app:layout_constraintRight_toRightOf="parent"-->
+    <!--app:layout_constraintLeft_toRightOf="@id/al_btn_start"-->
+    <!--android:layout_height="50dp" />-->
+
+    <!--<Button-->
+    <!--android:id="@+id/al_btn_bind"-->
+    <!--android:layout_width="0dp"-->
+    <!--android:text="Start Service"-->
+    <!--app:layout_constraintTop_toBottomOf="@id/al_btn_start"-->
+    <!--app:layout_constraintHorizontal_chainStyle="spread"-->
+    <!--app:layout_constraintRight_toLeftOf="@id/al_btn_unbind"-->
+    <!--app:layout_constraintLeft_toLeftOf="parent"-->
+    <!--android:layout_height="50dp" />-->
+
+    <!--<Button-->
+    <!--android:id="@+id/al_btn_unbind"-->
+    <!--android:layout_width="0dp"-->
+    <!--android:text="Stop Service"-->
+    <!--app:layout_constraintTop_toBottomOf="@id/al_btn_start"-->
+    <!--app:layout_constraintRight_toRightOf="parent"-->
+    <!--app:layout_constraintLeft_toRightOf="@id/al_btn_bind"-->
+    <!--android:layout_height="50dp" />-->
+
+</android.support.constraint.ConstraintLayout>

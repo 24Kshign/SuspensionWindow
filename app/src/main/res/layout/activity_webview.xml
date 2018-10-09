@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/aw_tv_title"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:background="@color/colorPrimary"
+        android:gravity="center"
+        android:text="标题"
+        android:textColor="@android:color/white"
+        android:textSize="18dp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/aw_tv_back"
+        android:layout_width="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginLeft="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:gravity="center"
+        android:textSize="17dp"
+        android:drawableLeft="@drawable/icon_back_white"
+        android:textColor="@android:color/white"
+        android:layout_height="45dp" />
+
+    <TextView
+        android:id="@+id/aw_tv_right"
+        android:layout_width="wrap_content"
+        android:layout_height="45dp"
+        android:layout_marginRight="20dp"
+        android:gravity="center"
+        android:text="点击"
+        android:textColor="@android:color/white"
+        android:textSize="17dp"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <WebView
+        android:id="@+id/aw_webview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/aw_tv_title" />
+
+</android.support.constraint.ConstraintLayout>
