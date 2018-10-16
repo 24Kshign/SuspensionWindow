@@ -162,3 +162,10 @@ class ApplicationLifecycle : Application.ActivityLifecycleCallbacks {
 
 - [
 Android 悬浮窗权限各机型各系统适配大全](https://blog.csdn.net/self_study/article/details/52859790)
+
+
+### 强烈推荐
+
+FRDialog，一个用Builder模式重新打造一个dialog，案例中有三种Builder，分别是CommonBuilder、MDBuilder和RecyclerViewBuilder，如果还想实现其他的通用，继承自FRBaseDialogBuilder即可。
+
+项目地址：[自定义万能FRDialog](https://github.com/AndroidFriendsGroup/FRDialog)
