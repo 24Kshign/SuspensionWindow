@@ -120,7 +120,7 @@ public class WindowUtil {
         }
     }
 
-    private void initListener(Context context) {
+    private void initListener(final Context context) {
         mView.setOnClickListener(v -> {
             String jumpUrl = SPUtil.getStringDefault(WebViewActivity.ARTICLE_JUMP_URL, "");
             if (!jumpUrl.isEmpty()) {
@@ -134,6 +134,7 @@ public class WindowUtil {
             boolean isMove;  //是否在移动
             long startTime;
             int finalMoveX;  //最后通过动画将mView的X轴坐标移动到finalMoveX
+            int statusBarHeight;
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -141,12 +142,19 @@ public class WindowUtil {
                     case MotionEvent.ACTION_DOWN:
                         startX = (int) event.getX();
                         startY = (int) event.getY();
+                        int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
+                        if (resourceId > 0) {
+                            statusBarHeight = context.getResources().getDimensionPixelSize(resourceId);
+                            Log.e("TAG", "statusBarHeight---->" + statusBarHeight);
+                        }
                         startTime = System.currentTimeMillis();
                         isMove = false;
                         return false;
                     case MotionEvent.ACTION_MOVE:
                         mLayoutParams.x = (int) (event.getRawX() - startX);
-                        mLayoutParams.y = (int) (event.getRawY() - startY);
+                        //这里修复了刚开始移动的时候，悬浮窗的y坐标是不正确的，要减去状态栏的高度，可以将这个去掉运行体验一下
+                        mLayoutParams.y = (int) (event.getRawY() - startY - statusBarHeight);
+                        Log.e("TAG", "y---->" + mLayoutParams.y);
                         updateViewLayout();   //更新mView 的位置
                         return true;
                     case MotionEvent.ACTION_UP:
