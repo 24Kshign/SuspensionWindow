@@ -74,6 +74,7 @@ mView.setOnTouchListener(new View.OnTouchListener() {
     boolean isMove;  //是否在移动
     long startTime;
     int finalMoveX;  //最后通过动画将mView的X轴坐标移动到finalMoveX
+    int statusBarHeight;  //解决mViewy坐标不准确的bug，这里需要减去状态栏的高度
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
@@ -82,11 +83,15 @@ mView.setOnTouchListener(new View.OnTouchListener() {
                 startX = (int) event.getX();
                 startY = (int) event.getY();
                 startTime = System.currentTimeMillis();
+		int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
+		if (resourceId > 0) {
+			statusBarHeight = context.getResources().getDimensionPixelSize(resourceId);
+		}
                 isMove = false;
                 return false;
             case MotionEvent.ACTION_MOVE:
                 mLayoutParams.x = (int) (event.getRawX() - startX);
-                mLayoutParams.y = (int) (event.getRawY() - startY);
+                mLayoutParams.y = (int) (event.getRawY() - startY - statusBarHeight);
                 updateViewLayout();   //更新mView 的位置
                 return true;
             case MotionEvent.ACTION_UP:
