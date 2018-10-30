@@ -174,3 +174,9 @@ Android 悬浮窗权限各机型各系统适配大全](https://blog.csdn.net/sel
 FRDialog，一个用Builder模式重新打造一个dialog，案例中有三种Builder，分别是CommonBuilder、MDBuilder和RecyclerViewBuilder，如果还想实现其他的通用，继承自FRBaseDialogBuilder即可。
 
 项目地址：[自定义万能FRDialog](https://github.com/AndroidFriendsGroup/FRDialog)
+
+### 公众号
+
+欢迎关注我的个人公众号【IT先森养成记】，专注大前端技术分享，包含Android，Java基础，Kotlin，HTML，CSS，JS等技术；在这里你能得到的不止是技术上的提升，还有一些学习经验以及志同道合的朋友，赶快加入我们，一起学习，一起进化吧！！！
+
+![公众号：IT先森养成记](http://upload-images.jianshu.io/upload_images/490111-cfc591d001bf4cc6.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
