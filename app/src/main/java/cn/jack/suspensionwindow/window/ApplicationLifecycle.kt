@@ -5,6 +5,7 @@ import android.app.Application
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import cn.jack.suspensionwindow.App
 import cn.jack.suspensionwindow.WebViewActivity
 import cn.jack.suspensionwindow.util.SPUtil
 import cn.jack.suspensionwindow.window.WindowShowService
@@ -19,9 +20,11 @@ class ApplicationLifecycle : Application.ActivityLifecycleCallbacks {
     private var started: Int = 0
 
     override fun onActivityPaused(activity: Activity?) {
+        App.instance.setCurrentActivity(null)
     }
 
     override fun onActivityResumed(activity: Activity?) {
+        App.instance.setCurrentActivity(activity)
     }
 
     override fun onActivityStarted(activity: Activity?) {

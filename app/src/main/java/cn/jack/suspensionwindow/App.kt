@@ -1,7 +1,9 @@
 package cn.jack.suspensionwindow
 
+import android.app.Activity
 import android.app.Application
 import cn.jack.test.window.ApplicationLifecycle
+import java.lang.ref.WeakReference
 
 /**
  * Created by manji
@@ -9,6 +11,8 @@ import cn.jack.test.window.ApplicationLifecycle
  * Desc：
  */
 class App : Application() {
+
+    private var CurrentActivity: WeakReference<Activity>? = null
 
     companion object {
         @JvmStatic
@@ -21,4 +25,22 @@ class App : Application() {
 
         registerActivityLifecycleCallbacks(ApplicationLifecycle())
     }
+
+
+    //region 设置获取当前的activity
+    fun getCurrentActivity(): Activity? {
+        return if (CurrentActivity != null) {
+            CurrentActivity!!.get()
+        } else null
+
+    }
+
+    fun setCurrentActivity(activity: Activity?) {
+        CurrentActivity = if (activity != null) {
+            WeakReference(activity)
+        } else {
+            null
+        }
+    }
+    //endregion
 }

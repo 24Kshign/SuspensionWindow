@@ -2,6 +2,7 @@ package cn.jack.suspensionwindow.window;
 
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
@@ -23,6 +24,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
+import cn.jack.suspensionwindow.App;
 import cn.jack.suspensionwindow.R;
 import cn.jack.suspensionwindow.WebViewActivity;
 import cn.jack.suspensionwindow.util.SPUtil;
@@ -299,7 +301,8 @@ public class WindowUtil {
     }
 
     private void showDialog(Context context, String flag) {
-        FRDialog dialog = new FRDialog.MDBuilder(context)
+        Activity currentActivity = App.getInstance().getCurrentActivity();
+        FRDialog dialog = new FRDialog.MDBuilder(currentActivity == null ? context : currentActivity)
                 .setTitle("悬浮窗权限")
                 .setMessage("您的手机没有授予悬浮窗权限，请开启后再试")
                 .setPositiveContentAndListener("现在去开启", view -> {
@@ -341,11 +344,17 @@ public class WindowUtil {
                     }
                     return true;
                 }).create();
-        //在service中弹dialog会有问题，设置一下dialog的类型，和android版本也有关系，在这里判断一下
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Objects.requireNonNull(dialog.getWindow()).setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY - 1);
-        } else {
-            Objects.requireNonNull(dialog.getWindow()).setType(WindowManager.LayoutParams.TYPE_TOAST);
+        if (currentActivity == null) {
+            //在service中弹dialog会有问题，设置一下dialog的类型，和android版本也有关系，在这里判断一下
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Objects.requireNonNull(dialog.getWindow()).setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY - 1);
+            } else {
+                // 经测试 在Xiaomi MI 5 7.0下 TYPE_TOAST 与 TYPE_PHONE 无法弹窗
+                // 在OPPO R11t 7.1.1下 仍旧需要TYPE_SYSTEM_ALERT属性 否则Crash
+                Objects.requireNonNull(dialog.getWindow()).setType(WindowManager.LayoutParams.TYPE_TOAST
+                        | WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+
+            }
         }
         dialog.show();
     }
