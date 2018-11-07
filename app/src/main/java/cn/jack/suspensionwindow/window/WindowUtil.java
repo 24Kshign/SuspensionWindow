@@ -351,11 +351,11 @@ public class WindowUtil {
             } else {
                 // 经测试 在Xiaomi MI 5 7.0下 TYPE_TOAST 与 TYPE_PHONE 无法弹窗
                 // 在OPPO R11t 7.1.1下 仍旧需要TYPE_SYSTEM_ALERT属性 否则Crash
-                Objects.requireNonNull(dialog.getWindow()).setType(WindowManager.LayoutParams.TYPE_TOAST
-                        | WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+                Objects.requireNonNull(dialog.getWindow()).setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
 
             }
         }
+
         dialog.show();
     }
 
