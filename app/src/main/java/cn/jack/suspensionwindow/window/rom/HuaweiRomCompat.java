@@ -1,39 +1,35 @@
-/*
- * Copyright (C) 2016 Facishare Technology Co., Ltd. All Rights Reserved.
- */
 package cn.jack.suspensionwindow.window.rom;
 
-import android.annotation.TargetApi;
-import android.app.AppOpsManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Binder;
 import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.lang.reflect.Method;
-
-public class HuaweiUtils {
-    private static final String TAG = "HuaweiUtils";
-
+/**
+ * Created by 大灯泡 on 2018/11/7.
+ */
+public class HuaweiRomCompat extends BaseRomCompatImpl {
     /**
-     * 检测 Huawei 悬浮窗权限
+     * 获取 emui 版本号
+     *
+     * @return
      */
-    public static boolean checkFloatWindowPermission(Context context) {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 19) {
-            return checkOp(context, 24); //OP_SYSTEM_ALERT_WINDOW = 24;
+    public double getEmuiVersion() {
+        try {
+            String emuiVersion = getSystemProperty("ro.build.version.emui");
+            String version = emuiVersion.substring(emuiVersion.indexOf("_") + 1);
+            return Double.parseDouble(version);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return true;
+        return 4.0;
     }
 
-    /**
-     * 去华为权限申请页面
-     */
-    public static void applyPermission(Context context) {
+    @Override
+    public boolean applyPermission(Context context) {
         try {
             Intent intent = new Intent();
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -42,7 +38,7 @@ public class HuaweiUtils {
 //      "com.huawei.permissionmanager.ui.SingleAppActivity");//华为权限管理，跳转到指定app的权限管理位置需要华为接口权限，未解决
             ComponentName comp = new ComponentName("com.huawei.systemmanager", "com.huawei.systemmanager.addviewmonitor.AddViewMonitorActivity");//悬浮窗管理页面
             intent.setComponent(comp);
-            if (RomUtils.getEmuiVersion() == 3.1) {
+            if (getEmuiVersion() == 3.1) {
                 //emui 3.1 的适配
                 context.startActivity(intent);
             } else {
@@ -51,6 +47,7 @@ public class HuaweiUtils {
                 intent.setComponent(comp);
                 context.startActivity(intent);
             }
+            return true;
         } catch (SecurityException e) {
             Intent intent = new Intent();
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -61,6 +58,7 @@ public class HuaweiUtils {
             intent.setComponent(comp);
             context.startActivity(intent);
             Log.e(TAG, Log.getStackTraceString(e));
+            return true;
         } catch (ActivityNotFoundException e) {
             /**
              * 手机管家版本较低 HUAWEI SC-UL10
@@ -74,30 +72,17 @@ public class HuaweiUtils {
             context.startActivity(intent);
             e.printStackTrace();
             Log.e(TAG, Log.getStackTraceString(e));
+            return true;
         } catch (Exception e) {
             //抛出异常时提示信息
             Toast.makeText(context, "进入设置页面失败，请手动设置", Toast.LENGTH_LONG).show();
             Log.e(TAG, Log.getStackTraceString(e));
         }
-    }
-
-    @TargetApi(Build.VERSION_CODES.KITKAT)
-    private static boolean checkOp(Context context, int op) {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 19) {
-            AppOpsManager manager = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
-            try {
-                Class clazz = AppOpsManager.class;
-                Method method = clazz.getDeclaredMethod("checkOp", int.class, int.class, String.class);
-                return AppOpsManager.MODE_ALLOWED == (int) method.invoke(manager, op, Binder.getCallingUid(), context.getPackageName());
-            } catch (Exception e) {
-                Log.e(TAG, Log.getStackTraceString(e));
-            }
-        } else {
-            Log.e(TAG, "Below API 19 cannot invoke!");
-        }
         return false;
     }
+
+    @Override
+    public boolean checkRom() {
+        return Build.MANUFACTURER.contains("HUAWEI");
+    }
 }
-
-
