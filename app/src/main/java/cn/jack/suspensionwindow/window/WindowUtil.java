@@ -345,8 +345,9 @@ public class WindowUtil {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Objects.requireNonNull(dialog.getWindow()).setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY - 1);
         } else {
-            Objects.requireNonNull(dialog.getWindow()).setType(WindowManager.LayoutParams.TYPE_TOAST);
+            Objects.requireNonNull(dialog.getWindow()).setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
         }
+
         dialog.show();
     }
 
