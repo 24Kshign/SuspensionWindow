@@ -19,9 +19,7 @@ public class RomCompatFactory {
                 return result;
             }
         }
-        if (result == null) {
-            result = new DefaultRomCompat();
-        }
+        result = new DefaultRomCompat();
         return result;
     }
 
