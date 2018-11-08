@@ -10,16 +10,14 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.view.KeyEvent;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.TextView;
 
 import cn.jack.suspensionwindow.bean.ArticleBean;
 import cn.jack.suspensionwindow.util.SPUtil;
 import cn.jack.suspensionwindow.window.WindowShowService;
-import cn.jack.suspensionwindow.window.WindowUtil;
+import cn.jack.suspensionwindow.window.rom.RomUtils;
 import cn.jake.share.frdialog.dialog.FRDialog;
 
 /**
@@ -120,7 +118,7 @@ public class WebViewActivity extends FragmentActivity {
                             stopService(new Intent(WebViewActivity.this, WindowShowService.class));
                         } else {
                             //需要开启悬浮并退出WebView
-                            if (WindowUtil.getInstance().checkPermission(WebViewActivity.this)) {
+                            if (RomUtils.checkFloatWindowPermission(WebViewActivity.this)) {
                                 //有权限，直接保存文章信息
                                 isShowWindow = true;
                                 SPUtil.setIntDefault(ARTICLE_ID, mArticleBean.getId());

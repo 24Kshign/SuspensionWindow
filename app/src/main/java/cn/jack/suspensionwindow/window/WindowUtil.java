@@ -3,34 +3,25 @@ package cn.jack.suspensionwindow.window;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.PixelFormat;
-import android.net.Uri;
 import android.os.Build;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.Objects;
 
 import cn.jack.suspensionwindow.R;
 import cn.jack.suspensionwindow.WebViewActivity;
 import cn.jack.suspensionwindow.util.SPUtil;
-import cn.jack.suspensionwindow.window.rom.HuaweiUtils;
-import cn.jack.suspensionwindow.window.rom.MeizuUtils;
-import cn.jack.suspensionwindow.window.rom.MiuiUtils;
-import cn.jack.suspensionwindow.window.rom.OppoUtils;
-import cn.jack.suspensionwindow.window.rom.QikuUtils;
 import cn.jack.suspensionwindow.window.rom.RomUtils;
 import cn.jake.share.frdialog.dialog.FRDialog;
 
@@ -72,14 +63,14 @@ public class WindowUtil {
     }
 
     public void showPermissionWindow(Context context, OnPermissionListener onPermissionListener) {
-        if (checkPermission(context)) {
+        if (RomUtils.checkFloatWindowPermission(context)) {
             showWindow(context);
         } else {
             SPUtil.setIntDefault(WebViewActivity.ARTICLE_ID, -1);
             SPUtil.setStringDefault(WebViewActivity.ARTICLE_JUMP_URL, "");
             SPUtil.setStringDefault(WebViewActivity.ARTICLE_IMAGE_URL, "");
             mOnPermissionListener = onPermissionListener;
-            applyPermission(context);
+            showDialog(context);
         }
     }
 
@@ -170,6 +161,7 @@ public class WindowUtil {
 
                         //使用动画移动mView
                         ValueAnimator animator = ValueAnimator.ofInt(mLayoutParams.x, finalMoveX).setDuration(Math.abs(mLayoutParams.x - finalMoveX));
+                        animator.setInterpolator(new AccelerateDecelerateInterpolator());
                         animator.addUpdateListener((ValueAnimator animation) -> {
                             mLayoutParams.x = (int) animation.getAnimatedValue();
                             updateViewLayout();
@@ -189,151 +181,12 @@ public class WindowUtil {
         }
     }
 
-    public boolean checkPermission(Context context) {
-        //6.0 版本之后由于 google 增加了对悬浮窗权限的管理，所以方式就统一了
-        if (Build.VERSION.SDK_INT < 23) {
-            if (RomUtils.checkIsMiuiRom()) {
-                return miuiPermissionCheck(context);
-            } else if (RomUtils.checkIsMeizuRom()) {
-                return meizuPermissionCheck(context);
-            } else if (RomUtils.checkIsHuaweiRom()) {
-                return huaweiPermissionCheck(context);
-            } else if (RomUtils.checkIs360Rom()) {
-                return qikuPermissionCheck(context);
-            } else if (RomUtils.checkIsOppoRom()) {
-                return oppoROMPermissionCheck(context);
-            }
-        }
-        return commonROMPermissionCheck(context);
-    }
-
-    private boolean huaweiPermissionCheck(Context context) {
-        return HuaweiUtils.checkFloatWindowPermission(context);
-    }
-
-    private boolean miuiPermissionCheck(Context context) {
-        return MiuiUtils.checkFloatWindowPermission(context);
-    }
-
-    private boolean meizuPermissionCheck(Context context) {
-        return MeizuUtils.checkFloatWindowPermission(context);
-    }
-
-    private boolean qikuPermissionCheck(Context context) {
-        return QikuUtils.checkFloatWindowPermission(context);
-    }
-
-    private boolean oppoROMPermissionCheck(Context context) {
-        return OppoUtils.checkFloatWindowPermission(context);
-    }
-
-    private boolean commonROMPermissionCheck(Context context) {
-        //最新发现魅族6.0的系统这种方式不好用，天杀的，只有你是奇葩，没办法，单独适配一下
-        if (RomUtils.checkIsMeizuRom()) {
-            return meizuPermissionCheck(context);
-        } else {
-            Boolean result = true;
-            if (Build.VERSION.SDK_INT >= 23) {
-                try {
-                    Class clazz = Settings.class;
-                    Method canDrawOverlays = clazz.getDeclaredMethod("canDrawOverlays", Context.class);
-                    result = (Boolean) canDrawOverlays.invoke(null, context);
-                } catch (Exception e) {
-                    Log.e("TAG", Log.getStackTraceString(e));
-                }
-            }
-            return result;
-        }
-    }
-
-    private void applyPermission(Context context) {
-        if (Build.VERSION.SDK_INT < 23) {
-            if (RomUtils.checkIsMiuiRom()) {
-                miuiROMPermissionApply(context);
-            } else if (RomUtils.checkIsMeizuRom()) {
-                meizuROMPermissionApply(context);
-            } else if (RomUtils.checkIsHuaweiRom()) {
-                huaweiROMPermissionApply(context);
-            } else if (RomUtils.checkIs360Rom()) {
-                ROM360PermissionApply(context);
-            } else if (RomUtils.checkIsOppoRom()) {
-                oppoROMPermissionApply(context);
-            }
-        } else {
-            commonROMPermissionApply(context);
-        }
-    }
-
-    private void ROM360PermissionApply(final Context context) {
-        showDialog(context, ROM360);
-    }
-
-    private void huaweiROMPermissionApply(final Context context) {
-        showDialog(context, HUAWEI);
-    }
-
-    private void meizuROMPermissionApply(final Context context) {
-        showDialog(context, MEIZU);
-    }
-
-    private void miuiROMPermissionApply(final Context context) {
-        showDialog(context, MIUI);
-    }
-
-    private void oppoROMPermissionApply(final Context context) {
-        showDialog(context, OPPO);
-    }
-
-    /**
-     * 通用 rom 权限申请
-     */
-    private void commonROMPermissionApply(final Context context) {
-        //这里也一样，魅族系统需要单独适配
-        if (RomUtils.checkIsMeizuRom()) {
-            meizuROMPermissionApply(context);
-        } else {
-            if (Build.VERSION.SDK_INT >= 23) {
-                showDialog(context, COMMON_ROM);
-            }
-        }
-    }
-
-    private void showDialog(Context context, String flag) {
+    private void showDialog(Context context) {
         FRDialog dialog = new FRDialog.MDBuilder(context)
                 .setTitle("悬浮窗权限")
                 .setMessage("您的手机没有授予悬浮窗权限，请开启后再试")
                 .setPositiveContentAndListener("现在去开启", view -> {
-                    switch (flag) {
-                        case ROM360:
-                            QikuUtils.applyPermission(context);
-                            mOnPermissionListener.result(true);
-                            break;
-                        case HUAWEI:
-                            HuaweiUtils.applyPermission(context);
-                            mOnPermissionListener.result(true);
-                            break;
-                        case MEIZU:
-                            MeizuUtils.applyPermission(context);
-                            mOnPermissionListener.result(true);
-                            break;
-                        case MIUI:
-                            MiuiUtils.applyMiuiPermission(context);
-                            mOnPermissionListener.result(true);
-                            break;
-                        case OPPO:
-                            OppoUtils.applyOppoPermission(context);
-                            mOnPermissionListener.result(true);
-                            break;
-                        case COMMON_ROM:
-                            try {
-                                commonROMPermissionApplyInternal(context);
-                                mOnPermissionListener.result(true);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                mOnPermissionListener.result(false);
-                            }
-                            break;
-                    }
+                    RomUtils.applyPermission(context);
                     return true;
                 }).setNegativeContentAndListener("暂不开启", view -> {
                     if (null != mOnPermissionListener) {
@@ -349,16 +202,6 @@ public class WindowUtil {
         }
 
         dialog.show();
-    }
-
-    public void commonROMPermissionApplyInternal(Context context) throws NoSuchFieldException, IllegalAccessException {
-        Class clazz = Settings.class;
-        Field field = clazz.getDeclaredField("ACTION_MANAGE_OVERLAY_PERMISSION");
-
-        Intent intent = new Intent(field.get(null).toString());
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.setData(Uri.parse("package:" + context.getPackageName()));
-        context.startActivity(intent);
     }
 
     interface OnPermissionListener {
