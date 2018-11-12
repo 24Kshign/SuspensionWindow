@@ -1,11 +1,11 @@
-package cn.jack.test.window
+package cn.jack.suspensionwindow
 
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import cn.jack.suspensionwindow.WebViewActivity
+import cn.jack.suspensionwindow.ui.WebViewActivity
 import cn.jack.suspensionwindow.util.SPUtil
 import cn.jack.suspensionwindow.window.WindowShowService
 

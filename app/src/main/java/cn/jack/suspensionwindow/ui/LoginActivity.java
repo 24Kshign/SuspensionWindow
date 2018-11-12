@@ -1,4 +1,4 @@
-package cn.jack.suspensionwindow;
+package cn.jack.suspensionwindow.ui;
 
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
@@ -11,6 +11,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 
+import cn.jack.suspensionwindow.R;
 import cn.jack.suspensionwindow.util.DisplayUtil;
 
 

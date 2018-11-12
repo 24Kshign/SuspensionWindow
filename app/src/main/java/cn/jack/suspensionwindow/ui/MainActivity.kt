@@ -1,8 +1,9 @@
-package cn.jack.suspensionwindow
+package cn.jack.suspensionwindow.ui
 
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.FragmentActivity
+import cn.jack.suspensionwindow.R
 import kotlinx.android.synthetic.main.activity_main.*
 
 

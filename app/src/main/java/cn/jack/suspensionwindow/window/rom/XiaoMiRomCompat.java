@@ -8,12 +8,15 @@ import android.text.TextUtils;
 import android.util.Log;
 
 /**
- * Created by 大灯泡 on 2018/11/7.
+ * Created by 大灯泡 on 2018/11/7
+ * Edit By manji on 2018/11/12
  */
 public class XiaoMiRomCompat extends BaseRomCompatImpl {
+
     @Override
     public boolean applyPermission(Context context) {
         int versionCode = getMiuiVersion();
+        //注意，这里是针对miui的版本，不是android的版本
         if (versionCode == 5) {
             return goToMiuiPermissionActivity_V5(context);
         } else if (versionCode == 6) {
@@ -23,9 +26,9 @@ public class XiaoMiRomCompat extends BaseRomCompatImpl {
         } else if (versionCode == 8) {
             return goToMiuiPermissionActivity_V8(context);
         } else {
-            Log.e(TAG, "this is a special MIUI rom version, its version code " + versionCode);
+            // 大于miui8的一律按照miui8适配
+            return goToMiuiPermissionActivity_V8(context);
         }
-        return false;
     }
 
     /**
@@ -63,24 +66,6 @@ public class XiaoMiRomCompat extends BaseRomCompatImpl {
             return false;
         }
         return true;
-
-        //设置页面在应用详情页面
-//        Intent intent = new Intent("miui.intent.action.APP_PERM_EDITOR");
-//        PackageInfo pInfo = null;
-//        try {
-//            pInfo = context.getPackageManager().getPackageInfo
-//                    (HostInterfaceManager.getHostInterface().getApp().getPackageName(), 0);
-//        } catch (PackageManager.NameNotFoundException e) {
-//            AVLogUtils.e(TAG, e.getMessage());
-//        }
-//        intent.setClassName("com.android.settings", "com.miui.securitycenter.permission.AppPermissionsEditor");
-//        intent.putExtra("extra_package_uid", pInfo.applicationInfo.uid);
-//        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//        if (isIntentAvailable(intent, context)) {
-//            context.startActivity(intent);
-//        } else {
-//            AVLogUtils.e(TAG, "Intent is not available!");
-//        }
     }
 
     /**

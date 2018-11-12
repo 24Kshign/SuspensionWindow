@@ -5,7 +5,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.os.Build;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -17,13 +16,10 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
-import java.util.Objects;
-
 import cn.jack.suspensionwindow.R;
-import cn.jack.suspensionwindow.WebViewActivity;
+import cn.jack.suspensionwindow.ui.WebViewActivity;
 import cn.jack.suspensionwindow.util.SPUtil;
 import cn.jack.suspensionwindow.window.rom.RomUtils;
-import cn.jake.share.frdialog.dialog.FRDialog;
 
 import static android.content.Context.WINDOW_SERVICE;
 
@@ -34,20 +30,9 @@ import static android.content.Context.WINDOW_SERVICE;
  */
 public class WindowUtil {
 
-
     private WindowManager mWindowManager;
     private WindowManager.LayoutParams mLayoutParams;
     private View mView;
-
-    private static final String ROM360 = "rom360";
-    private static final String HUAWEI = "huawei";
-    private static final String MEIZU = "meizu";
-    private static final String MIUI = "miui";
-    private static final String OPPO = "oppo";
-    private static final String COMMON_ROM = "common_rom";
-
-    private OnPermissionListener mOnPermissionListener;
-
 
     private WindowUtil() {
 
@@ -66,41 +51,39 @@ public class WindowUtil {
         if (RomUtils.checkFloatWindowPermission(context)) {
             showWindow(context);
         } else {
-            SPUtil.setIntDefault(WebViewActivity.ARTICLE_ID, -1);
-            SPUtil.setStringDefault(WebViewActivity.ARTICLE_JUMP_URL, "");
-            SPUtil.setStringDefault(WebViewActivity.ARTICLE_IMAGE_URL, "");
-            mOnPermissionListener = onPermissionListener;
-            showDialog(context);
+            onPermissionListener.showPermissionDialog();
         }
     }
 
     @SuppressLint("CheckResult")
     private void showWindow(Context context) {
-        mWindowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
-        mView = LayoutInflater.from(context).inflate(R.layout.article_window, null);
+        if (null == mWindowManager && null == mView) {
+            mWindowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
+            mView = LayoutInflater.from(context).inflate(R.layout.article_window, null);
 
-        ImageView ivImage = mView.findViewById(R.id.aw_iv_image);
-        String imageUrl = SPUtil.getStringDefault(WebViewActivity.ARTICLE_IMAGE_URL, "");
-        RequestOptions requestOptions = RequestOptions.circleCropTransform();
-        requestOptions.placeholder(R.mipmap.ic_launcher_round).error(R.mipmap.ic_launcher_round);
-        Glide.with(context).load(imageUrl).apply(requestOptions).into(ivImage);
+            ImageView ivImage = mView.findViewById(R.id.aw_iv_image);
+            String imageUrl = SPUtil.getStringDefault(WebViewActivity.ARTICLE_IMAGE_URL, "");
+            RequestOptions requestOptions = RequestOptions.circleCropTransform();
+            requestOptions.placeholder(R.mipmap.ic_launcher_round).error(R.mipmap.ic_launcher_round);
+            Glide.with(context).load(imageUrl).apply(requestOptions).into(ivImage);
 
-        initListener(context);
+            initListener(context);
 
-        mLayoutParams = new WindowManager.LayoutParams();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            mLayoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
-        } else {
-            mLayoutParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
+            mLayoutParams = new WindowManager.LayoutParams();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                mLayoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+            } else {
+                mLayoutParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
+            }
+            mLayoutParams.format = PixelFormat.RGBA_8888;   //窗口透明
+            mLayoutParams.gravity = Gravity.LEFT | Gravity.TOP;  //窗口位置
+            mLayoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+            mLayoutParams.width = 200;
+            mLayoutParams.height = 200;
+            mLayoutParams.x = mWindowManager.getDefaultDisplay().getWidth() - 200;
+            mLayoutParams.y = 0;
+            mWindowManager.addView(mView, mLayoutParams);
         }
-        mLayoutParams.format = PixelFormat.RGBA_8888;   //窗口透明
-        mLayoutParams.gravity = Gravity.LEFT | Gravity.TOP;  //窗口位置
-        mLayoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-        mLayoutParams.width = 200;
-        mLayoutParams.height = 200;
-        mLayoutParams.x = mWindowManager.getDefaultDisplay().getWidth() - 200;
-        mLayoutParams.y = 0;
-        mWindowManager.addView(mView, mLayoutParams);
     }
 
     public void dismissWindow() {
@@ -136,7 +119,6 @@ public class WindowUtil {
                         int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
                         if (resourceId > 0) {
                             statusBarHeight = context.getResources().getDimensionPixelSize(resourceId);
-                            Log.e("TAG", "statusBarHeight---->" + statusBarHeight);
                         }
                         startTime = System.currentTimeMillis();
                         isMove = false;
@@ -145,7 +127,6 @@ public class WindowUtil {
                         mLayoutParams.x = (int) (event.getRawX() - startX);
                         //这里修复了刚开始移动的时候，悬浮窗的y坐标是不正确的，要减去状态栏的高度，可以将这个去掉运行体验一下
                         mLayoutParams.y = (int) (event.getRawY() - startY - statusBarHeight);
-                        Log.e("TAG", "y---->" + mLayoutParams.y);
                         updateViewLayout();   //更新mView 的位置
                         return true;
                     case MotionEvent.ACTION_UP:
@@ -181,30 +162,7 @@ public class WindowUtil {
         }
     }
 
-    private void showDialog(Context context) {
-        FRDialog dialog = new FRDialog.MDBuilder(context)
-                .setTitle("悬浮窗权限")
-                .setMessage("您的手机没有授予悬浮窗权限，请开启后再试")
-                .setPositiveContentAndListener("现在去开启", view -> {
-                    RomUtils.applyPermission(context);
-                    return true;
-                }).setNegativeContentAndListener("暂不开启", view -> {
-                    if (null != mOnPermissionListener) {
-                        mOnPermissionListener.result(false);
-                    }
-                    return true;
-                }).create();
-        //在service中弹dialog会有问题，设置一下dialog的类型，和android版本也有关系，在这里判断一下
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Objects.requireNonNull(dialog.getWindow()).setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY - 1);
-        } else {
-            Objects.requireNonNull(dialog.getWindow()).setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
-        }
-
-        dialog.show();
-    }
-
     interface OnPermissionListener {
-        void result(boolean isSuccess);
+        void showPermissionDialog();
     }
 }

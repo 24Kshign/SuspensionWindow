@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
-import static cn.jack.suspensionwindow.WebViewActivity.BROAD_CAST_NAME;
+import static cn.jack.suspensionwindow.ui.WebViewActivity.BROAD_CAST_NAME;
 
 
 /**
@@ -13,7 +13,7 @@ import static cn.jack.suspensionwindow.WebViewActivity.BROAD_CAST_NAME;
  * Date：2018/9/29 上午11:50
  * Desc：
  */
-public class WindowShowService extends Service implements WindowUtil.OnPermissionListener {
+public class WindowShowService extends Service implements WindowUtil.OnPermissionListener{
 
     @Nullable
     @Override
@@ -23,7 +23,7 @@ public class WindowShowService extends Service implements WindowUtil.OnPermissio
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        WindowUtil.getInstance().showPermissionWindow(this, this);
+        WindowUtil.getInstance().showPermissionWindow(this,this);
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -34,10 +34,8 @@ public class WindowShowService extends Service implements WindowUtil.OnPermissio
     }
 
     @Override
-    public void result(boolean isSuccess) {
-        //获取权限成功，发送广播通知Activity
+    public void showPermissionDialog() {
         Intent intent = new Intent(BROAD_CAST_NAME);
-        intent.putExtra("permission", isSuccess);
         sendBroadcast(intent);
     }
 }

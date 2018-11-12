@@ -9,6 +9,11 @@ import android.os.Build;
  * Created by 大灯泡 on 2018/11/7.
  */
 public class OppoRomCompat extends BaseRomCompatImpl {
+    /**
+     * oppo手机打开权限页面有问题
+     * @param context
+     * @return
+     */
     @Override
     public boolean applyPermission(Context context) {
         //merge request from https://github.com/zhaozepeng/FloatWindowPermission/pull/26

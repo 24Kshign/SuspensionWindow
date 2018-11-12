@@ -1,5 +1,6 @@
 package cn.jack.suspensionwindow.window.rom;
 
+import android.app.Activity;
 import android.app.AppOpsManager;
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +21,9 @@ import java.lang.reflect.Method;
  * Created by 大灯泡 on 2018/11/7.
  */
 public abstract class BaseRomCompatImpl implements IRomCompat {
+
+    public static final int REQUEST_PERMISSION_CODE = 0x0110;
+
     final String TAG = getClass().getSimpleName();
 
     @Override
@@ -78,21 +82,28 @@ public abstract class BaseRomCompatImpl implements IRomCompat {
     }
 
     public boolean applyCommonPermission(Context context) {
-        try {
-            Class clazz = Settings.class;
-            Field field = null;
-            field = clazz.getDeclaredField("ACTION_MANAGE_OVERLAY_PERMISSION");
-            Intent intent = new Intent(field.get(null).toString());
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        try {
+//            Class clazz = Settings.class;
+//            Field field = null;
+//            field = clazz.getDeclaredField("ACTION_MANAGE_OVERLAY_PERMISSION");
+//            Intent intent = new Intent(field.get(null).toString());
+//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            intent.setData(Uri.parse("package:" + context.getPackageName()));
+//            ((Activity) context).startActivityForResult(intent, REQUEST_PERMISSION_CODE);
+//            return true;
+//        } catch (NoSuchFieldException e) {
+//            e.printStackTrace();
+//        } catch (IllegalAccessException e) {
+//            e.printStackTrace();
+//        }
+//        return false;
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
             intent.setData(Uri.parse("package:" + context.getPackageName()));
-            context.startActivity(intent);
-            return true;
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            ((Activity) context).startActivityForResult(intent, REQUEST_PERMISSION_CODE);
         }
-        return false;
+        return true;
     }
 
 }

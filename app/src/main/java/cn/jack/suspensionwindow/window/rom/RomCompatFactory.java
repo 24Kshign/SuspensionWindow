@@ -7,7 +7,6 @@ public class RomCompatFactory {
 
     static final Class<? extends IRomCompat>[] sRomCompat = new Class[]{HuaweiRomCompat.class,
             MeizuRomCompat.class,
-            OppoRomCompat.class,
             QiKu360RomCompat.class,
             XiaoMiRomCompat.class};
 
