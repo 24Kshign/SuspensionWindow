@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.view.KeyEvent;
@@ -19,7 +18,6 @@ import cn.jack.suspensionwindow.R;
 import cn.jack.suspensionwindow.bean.ArticleBean;
 import cn.jack.suspensionwindow.util.SPUtil;
 import cn.jack.suspensionwindow.window.WindowShowService;
-import cn.jack.suspensionwindow.window.rom.BaseRomCompatImpl;
 import cn.jack.suspensionwindow.window.rom.RomUtils;
 import cn.jake.share.frdialog.dialog.FRDialog;
 
@@ -141,20 +139,7 @@ public class WebViewActivity extends FragmentActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == BaseRomCompatImpl.REQUEST_PERMISSION_CODE) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (!Settings.canDrawOverlays(this)) {
-                    // 授权失败
-                    showDialog();
-                } else {
-                    //授权成功
-                    SPUtil.setIntDefault(ARTICLE_ID, mArticleBean.getId());
-                    SPUtil.setStringDefault(ARTICLE_JUMP_URL, mArticleBean.getJumpUrl());
-                    SPUtil.setStringDefault(ARTICLE_IMAGE_URL, mArticleBean.getImageUrl());
-                    finish();
-                }
-            }
-        }
+        RomUtils.onActivityResult(this, requestCode, resultCode, data);
     }
 
     private void setSpDate(int id, String jumpUrl, String imageUrl) {
@@ -172,14 +157,24 @@ public class WebViewActivity extends FragmentActivity {
                 .setTitle("悬浮窗权限")
                 .setMessage("您的手机没有授予悬浮窗权限，请开启后再试")
                 .setPositiveContentAndListener("现在去开启", view -> {
-                    RomUtils.applyPermission(this);
+                    RomUtils.applyPermission(this, granted -> {
+                        if (!granted) {
+                            // 授权失败
+                            showDialog();
+                        } else {
+                            //授权成功
+                            SPUtil.setIntDefault(ARTICLE_ID, mArticleBean.getId());
+                            SPUtil.setStringDefault(ARTICLE_JUMP_URL, mArticleBean.getJumpUrl());
+                            SPUtil.setStringDefault(ARTICLE_IMAGE_URL, mArticleBean.getImageUrl());
+                            finish();
+                        }
+                    });
                     return true;
                 }).setNegativeContentAndListener("暂不开启", view -> true).create();
         dialog.show();
     }
 
     public class MyReceiver extends BroadcastReceiver {
-
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();//得到Service发送的广播

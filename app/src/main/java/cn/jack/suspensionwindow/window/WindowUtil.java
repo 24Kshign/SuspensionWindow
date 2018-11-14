@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.os.Build;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -128,11 +129,9 @@ public class WindowUtil {
                         //这里修复了刚开始移动的时候，悬浮窗的y坐标是不正确的，要减去状态栏的高度，可以将这个去掉运行体验一下
                         mLayoutParams.y = (int) (event.getRawY() - startY - statusBarHeight);
                         updateViewLayout();   //更新mView 的位置
+                        isMove = true;
                         return true;
                     case MotionEvent.ACTION_UP:
-                        long curTime = System.currentTimeMillis();
-                        isMove = curTime - startTime > 100;
-
                         //判断mView是在Window中的位置，以中间为界
                         if (mLayoutParams.x + mView.getMeasuredWidth() / 2 >= mWindowManager.getDefaultDisplay().getWidth() / 2) {
                             finalMoveX = mWindowManager.getDefaultDisplay().getWidth() - mView.getMeasuredWidth();
@@ -148,7 +147,6 @@ public class WindowUtil {
                             updateViewLayout();
                         });
                         animator.start();
-
                         return isMove;
                 }
                 return false;
