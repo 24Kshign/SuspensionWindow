@@ -5,7 +5,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.os.Build;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -20,6 +19,7 @@ import com.bumptech.glide.request.RequestOptions;
 import cn.jack.suspensionwindow.R;
 import cn.jack.suspensionwindow.ui.WebViewActivity;
 import cn.jack.suspensionwindow.util.SPUtil;
+import cn.jack.suspensionwindow.widget.CustomCancelView;
 import cn.jack.suspensionwindow.window.rom.RomUtils;
 
 import static android.content.Context.WINDOW_SERVICE;
@@ -34,6 +34,13 @@ public class WindowUtil {
     private WindowManager mWindowManager;
     private WindowManager.LayoutParams mLayoutParams;
     private View mView;
+
+    private View mCancelView;
+    private CustomCancelView mCustomCancelView;
+
+    private boolean isShowCancel;
+
+    private WindowManager.LayoutParams mCancelViewLayoutParams;
 
     private WindowUtil() {
 
@@ -58,9 +65,11 @@ public class WindowUtil {
 
     @SuppressLint("CheckResult")
     private void showWindow(Context context) {
-        if (null == mWindowManager && null == mView) {
+        if (null == mWindowManager && null == mView && null == mCancelView && null == mCancelViewLayoutParams) {
             mWindowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
             mView = LayoutInflater.from(context).inflate(R.layout.article_window, null);
+            mCancelView = LayoutInflater.from(context).inflate(R.layout.activity_test, null);
+            mCustomCancelView = mCancelView.findViewById(R.id.at_cancel_view);
 
             ImageView ivImage = mView.findViewById(R.id.aw_iv_image);
             String imageUrl = SPUtil.getStringDefault(WebViewActivity.ARTICLE_IMAGE_URL, "");
@@ -71,26 +80,41 @@ public class WindowUtil {
             initListener(context);
 
             mLayoutParams = new WindowManager.LayoutParams();
+            mCancelViewLayoutParams = new WindowManager.LayoutParams();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 mLayoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+                mCancelViewLayoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
             } else {
                 mLayoutParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
+                mCancelViewLayoutParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
             }
+
+            mCancelViewLayoutParams.format = PixelFormat.RGBA_8888;   //窗口透明
+            mCancelViewLayoutParams.gravity = Gravity.RIGHT | Gravity.BOTTOM;  //窗口位置
+            mCancelViewLayoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+            mCancelViewLayoutParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
+            mCancelViewLayoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            mWindowManager.addView(mCancelView, mCancelViewLayoutParams);
+
             mLayoutParams.format = PixelFormat.RGBA_8888;   //窗口透明
             mLayoutParams.gravity = Gravity.LEFT | Gravity.TOP;  //窗口位置
             mLayoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
             mLayoutParams.width = 200;
             mLayoutParams.height = 200;
-            mLayoutParams.x = mWindowManager.getDefaultDisplay().getWidth() - 200;
-            mLayoutParams.y = 0;
             mWindowManager.addView(mView, mLayoutParams);
+
         }
     }
 
     public void dismissWindow() {
+        if (null != mCustomCancelView) {
+            mCustomCancelView.destroy();
+        }
         if (mWindowManager != null && mView != null) {
             mWindowManager.removeViewImmediate(mView);
+            mWindowManager.removeViewImmediate(mCancelView);
             mWindowManager = null;
+            mCancelView = null;
             mView = null;
         }
     }
@@ -130,6 +154,13 @@ public class WindowUtil {
                         mLayoutParams.y = (int) (event.getRawY() - startY - statusBarHeight);
                         updateViewLayout();   //更新mView 的位置
                         isMove = true;
+
+                        if (!isShowCancel) {
+                            isShowCancel = true;
+                            if (null != mCustomCancelView) {
+                                mCustomCancelView.startAnim(true);
+                            }
+                        }
                         return true;
                     case MotionEvent.ACTION_UP:
                         //判断mView是在Window中的位置，以中间为界
@@ -137,6 +168,13 @@ public class WindowUtil {
                             finalMoveX = mWindowManager.getDefaultDisplay().getWidth() - mView.getMeasuredWidth();
                         } else {
                             finalMoveX = 0;
+                        }
+
+                        if (isShowCancel) {
+                            isShowCancel = false;
+                            if (null != mCustomCancelView) {
+                                mCustomCancelView.startAnim(false);
+                            }
                         }
 
                         //使用动画移动mView
