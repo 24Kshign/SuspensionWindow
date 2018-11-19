@@ -165,7 +165,7 @@ class ApplicationLifecycle : Application.ActivityLifecycleCallbacks {
 
 ![](https://ws1.sinaimg.cn/large/005MjwGuly1fxdgim9sbeg309j0hh49m.jpg)
 
-新增一个关闭悬浮窗的功能（和微信一样），详细代码请看[WindowUtl中onTouch方法](https://github.com/24Kshign/SuspensionWindow/blob/02eccccbf6cdac3c49adb416eac9ae885b1e8de4/app/src/main/java/cn/jack/suspensionwindow/window/WindowUtil.java)
+新增一个关闭悬浮窗的功能（和微信一样），详细代码请看 WindowUtl 中 onTouch 方法
 
 ### 参考
 
