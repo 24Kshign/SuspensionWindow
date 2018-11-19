@@ -2,7 +2,10 @@ package cn.jack.suspensionwindow.util;
 
 import android.content.Context;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.WindowManager;
+
+import cn.jack.suspensionwindow.App;
 
 /**
  * Created by manji
@@ -41,6 +44,10 @@ public class DisplayUtil {
 
     public static int getRealHeight(Context context) {
         return getScreenHeight(context) - getStatusBarHeight(context);
+    }
+
+    public static int dip2px(float dip) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dip, App.getInstance().getResources().getDisplayMetrics());
     }
 
 }

@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/aw_rl_float"
-    android:layout_width="80dp"
-    android:layout_height="80dp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:background="@drawable/article_circle_bg">
 
     <ImageView
         android:id="@+id/aw_iv_image"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:src="@mipmap/ic_launcher_round" />
 

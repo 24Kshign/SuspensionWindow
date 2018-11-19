@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 
 import cn.jack.suspensionwindow.R;
+import cn.jack.suspensionwindow.util.DisplayUtil;
 
 /**
  * Created by manji
@@ -23,7 +24,6 @@ public class CustomCancelView extends View {
     private Paint mPaint;
 
     private float mRadius;
-    private int mColor;
 
     private ValueAnimator mAnimator;
 
@@ -41,8 +41,8 @@ public class CustomCancelView extends View {
         super(context, attrs, defStyleAttr);
 
         TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.CustomCancelView, defStyleAttr, 0);
-        mColor = array.getColor(R.styleable.CustomCancelView_view_color, Color.RED);
-        mRadius = array.getDimension(R.styleable.CustomCancelView_view_radius, 400);
+        int mColor = array.getColor(R.styleable.CustomCancelView_view_color, Color.RED);
+        mRadius = array.getDimension(R.styleable.CustomCancelView_view_radius, DisplayUtil.dip2px(200));
         array.recycle();
 
         mPaint = new Paint();
@@ -59,11 +59,12 @@ public class CustomCancelView extends View {
         mAnimator.addUpdateListener(animation -> {
             mCurrentRadius = (float) animation.getAnimatedValue();
             if (!isOpen && mCurrentRadius == 0) {
-                setVisibility(View.VISIBLE);
+                Log.e("TAG","GONE");
+                setVisibility(View.GONE);
             } else if (mCurrentRadius == 0) {
+                Log.e("TAG","VISIBLE");
                 setVisibility(View.VISIBLE);
             }
-            Log.e("TAG", "mCurrentRadius--->" + mCurrentRadius);
             postInvalidate();
         });
         if (isOpen) {
