@@ -9,6 +9,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ImageView;
@@ -138,7 +139,6 @@ public class WindowUtil {
         mView.setOnTouchListener(new View.OnTouchListener() {
             int startX, startY;  //起始点
             boolean isMove;  //是否在移动
-            long startTime;
             int finalMoveX;  //最后通过动画将mView的X轴坐标移动到finalMoveX
             int statusBarHeight;
 
@@ -157,15 +157,17 @@ public class WindowUtil {
                         if (resourceId > 0) {
                             statusBarHeight = context.getResources().getDimensionPixelSize(resourceId);
                         }
-                        startTime = System.currentTimeMillis();
+                        isShowCancel = false;
                         isMove = false;
                         return false;
                     case MotionEvent.ACTION_MOVE:
+                        //判断是CLICK还是MOVE
+                        isMove = Math.abs(startX - event.getX()) >= ViewConfiguration.get(context).getScaledTouchSlop()
+                                || Math.abs(startY - event.getY()) >= ViewConfiguration.get(context).getScaledTouchSlop();
                         mLayoutParams.x = (int) (event.getRawX() - startX);
                         //这里修复了刚开始移动的时候，悬浮窗的y坐标是不正确的，要减去状态栏的高度，可以将这个去掉运行体验一下
                         mLayoutParams.y = (int) (event.getRawY() - startY - statusBarHeight);
                         updateViewLayout();   //更新mView 的位置
-                        isMove = true;
 
                         if (!isShowCancel) {
                             isShowCancel = true;
@@ -173,16 +175,16 @@ public class WindowUtil {
                                 mCustomCancelView.startAnim(true);
                             }
                         }
-                        isRemove = isRemoveAllView(mLayoutParams.x, mLayoutParams.y, mCancelX, mCancelY);
                         return true;
                     case MotionEvent.ACTION_UP:
+                        // 计算两个View的距离，然后判断是否需要移除
+                        isRemove = isRemoveAllView(mLayoutParams.x, mLayoutParams.y, mCancelX, mCancelY);
                         //判断mView是在Window中的位置，以中间为界
                         if (mLayoutParams.x + mView.getMeasuredWidth() / 2 >= mWindowManager.getDefaultDisplay().getWidth() / 2) {
                             finalMoveX = mWindowManager.getDefaultDisplay().getWidth() - mView.getMeasuredWidth();
                         } else {
                             finalMoveX = 0;
                         }
-
                         if (isRemove) {
                             SPUtil.setIntDefault(WebViewActivity.ARTICLE_ID, -1);
                             SPUtil.setStringDefault(WebViewActivity.ARTICLE_JUMP_URL, "");
@@ -195,7 +197,6 @@ public class WindowUtil {
                                     mCustomCancelView.startAnim(false);
                                 }
                             }
-
                             //使用动画移动mView
                             ValueAnimator animator = ValueAnimator.ofInt(mLayoutParams.x, finalMoveX).setDuration(Math.abs(mLayoutParams.x - finalMoveX));
                             animator.setInterpolator(new AccelerateDecelerateInterpolator());

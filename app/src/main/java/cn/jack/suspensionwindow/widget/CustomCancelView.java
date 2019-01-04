@@ -8,7 +8,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 import cn.jack.suspensionwindow.R;
@@ -59,10 +58,8 @@ public class CustomCancelView extends View {
         mAnimator.addUpdateListener(animation -> {
             mCurrentRadius = (float) animation.getAnimatedValue();
             if (!isOpen && mCurrentRadius == 0) {
-                Log.e("TAG","GONE");
                 setVisibility(View.GONE);
-            } else if (mCurrentRadius == 0) {
-                Log.e("TAG","VISIBLE");
+            } else {
                 setVisibility(View.VISIBLE);
             }
             postInvalidate();

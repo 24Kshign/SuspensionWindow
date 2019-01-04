@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.view.KeyEvent;
@@ -157,17 +158,17 @@ public class WebViewActivity extends FragmentActivity {
                 .setTitle("悬浮窗权限")
                 .setMessage("您的手机没有授予悬浮窗权限，请开启后再试")
                 .setPositiveContentAndListener("现在去开启", view -> {
-                    RomUtils.applyPermission(this, granted -> {
-                        if (!granted) {
-                            // 授权失败
-                            showDialog();
-                        } else {
-                            //授权成功
-                            SPUtil.setIntDefault(ARTICLE_ID, mArticleBean.getId());
-                            SPUtil.setStringDefault(ARTICLE_JUMP_URL, mArticleBean.getJumpUrl());
-                            SPUtil.setStringDefault(ARTICLE_IMAGE_URL, mArticleBean.getImageUrl());
-                            finish();
-                        }
+                    RomUtils.applyPermission(this, () -> {
+                        new Handler().postDelayed(() -> {
+                            if (!RomUtils.checkFloatWindowPermission(this)) {
+                                // 授权失败
+                                showDialog();
+                            } else {
+                                //授权成功
+                                isShowWindow = true;
+                                setSpDate(mArticleBean.getId(), mArticleBean.getJumpUrl(), mArticleBean.getImageUrl());
+                            }
+                        }, 500);
                     });
                     return true;
                 }).setNegativeContentAndListener("暂不开启", view -> true).create();
