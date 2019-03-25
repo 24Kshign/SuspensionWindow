@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.os.Build;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -38,7 +39,6 @@ public class WindowUtil {
     private WindowManager.LayoutParams mLayoutParams;
     private View mView;
 
-    private View mCancelView;
     private CustomCancelView mCustomCancelView;
 
     private boolean isShowCancel;
@@ -70,11 +70,10 @@ public class WindowUtil {
 
     @SuppressLint("CheckResult")
     private void showWindow(Context context) {
-        if (null == mWindowManager && null == mView && null == mCancelView) {
+        if (null == mWindowManager && null == mView && null == mCustomCancelView) {
             mWindowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
             mView = LayoutInflater.from(context).inflate(R.layout.article_window, null);
-            mCancelView = LayoutInflater.from(context).inflate(R.layout.activity_test, null);
-            mCustomCancelView = mCancelView.findViewById(R.id.at_cancel_view);
+            mCustomCancelView = (CustomCancelView) LayoutInflater.from(context).inflate(R.layout.activity_test, null);
 
             ImageView ivImage = mView.findViewById(R.id.aw_iv_image);
             RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) ivImage.getLayoutParams();
@@ -103,7 +102,7 @@ public class WindowUtil {
             mCancelViewLayoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
             mCancelViewLayoutParams.width = DisplayUtil.dip2px(2 * mViewWidth);
             mCancelViewLayoutParams.height = DisplayUtil.dip2px(2 * mViewWidth);
-            mWindowManager.addView(mCancelView, mCancelViewLayoutParams);
+            mWindowManager.addView(mCustomCancelView, mCancelViewLayoutParams);
 
             mLayoutParams.format = PixelFormat.RGBA_8888;   //窗口透明
             mLayoutParams.gravity = Gravity.LEFT | Gravity.TOP;  //窗口位置
@@ -120,9 +119,9 @@ public class WindowUtil {
         }
         if (mWindowManager != null && mView != null) {
             mWindowManager.removeViewImmediate(mView);
-            mWindowManager.removeViewImmediate(mCancelView);
+            mWindowManager.removeViewImmediate(mCustomCancelView);
             mWindowManager = null;
-            mCancelView = null;
+            mCustomCancelView = null;
             mView = null;
         }
     }
@@ -147,6 +146,7 @@ public class WindowUtil {
 
             boolean isRemove;
 
+            @SuppressLint("ClickableViewAccessibility")
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
@@ -167,6 +167,8 @@ public class WindowUtil {
                         mLayoutParams.x = (int) (event.getRawX() - startX);
                         //这里修复了刚开始移动的时候，悬浮窗的y坐标是不正确的，要减去状态栏的高度，可以将这个去掉运行体验一下
                         mLayoutParams.y = (int) (event.getRawY() - startY - statusBarHeight);
+                        Log.e("TAG", "x---->" + mLayoutParams.x);
+                        Log.e("TAG", "y---->" + mLayoutParams.y);
                         updateViewLayout();   //更新mView 的位置
 
                         if (!isShowCancel) {

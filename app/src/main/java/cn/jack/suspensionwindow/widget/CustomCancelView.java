@@ -48,6 +48,7 @@ public class CustomCancelView extends View {
         mPaint.setAntiAlias(true);
         mPaint.setDither(true);
         mPaint.setColor(mColor);
+        setVisibility(View.GONE);
     }
 
 
