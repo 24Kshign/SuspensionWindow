@@ -142,7 +142,7 @@ public class CustomCancelView extends View {
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean dispatchTouchEvent(MotionEvent event) {
         return false;
     }
 }
