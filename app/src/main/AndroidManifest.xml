@@ -1,22 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="cn.jack.suspensionwindow">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.SYSTEM_OVERLAY_WINDOW" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission
+        android:name="android.permission.WRITE_SECURE_SETTINGS"
+        tools:ignore="ProtectedPermissions" />
 
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:name=".App"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -27,13 +31,13 @@
         </activity>
 
         <activity
-            android:name=".LoginActivity"
+            android:name=".ui.LoginActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".WebViewActivity"
+            android:name=".ui.WebViewActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ArticleListActivity"
+            android:name=".ui.ArticleListActivity"
             android:screenOrientation="portrait" />
 
         <service android:name=".window.WindowShowService" />

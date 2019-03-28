@@ -1,4 +1,4 @@
-package cn.jack.suspensionwindow;
+package cn.jack.suspensionwindow.ui;
 
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.view.KeyEvent;
@@ -14,6 +15,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.TextView;
 
+import cn.jack.suspensionwindow.R;
 import cn.jack.suspensionwindow.bean.ArticleBean;
 import cn.jack.suspensionwindow.util.SPUtil;
 import cn.jack.suspensionwindow.window.WindowShowService;
@@ -38,12 +40,14 @@ public class WebViewActivity extends FragmentActivity {
     private WebView mWebView;
     private TextView tvBack;
     private TextView tvRight;
-    private MyReceiver receiver;
 
     private String mUrl;
 
     private ArticleBean mArticleBean;
     private boolean isShowWindow;
+
+    private MyReceiver receiver;
+
 
     public static void start(Context context, ArticleBean articleBean) {
         Bundle bundle = new Bundle();
@@ -83,15 +87,14 @@ public class WebViewActivity extends FragmentActivity {
             stopService(new Intent(WebViewActivity.this, WindowShowService.class));
         }
 
-        if (SPUtil.getIntDefault(ARTICLE_ID, -1) > 0) {
-            //已经悬浮了
-            isShowWindow = true;
-        } else {
-            isShowWindow = false;
-        }
+        isShowWindow = isShow();
 
         initWebViewSetting();
         initListener();
+    }
+
+    private boolean isShow() {
+        return SPUtil.getIntDefault(ARTICLE_ID, -1) > 0;
     }
 
     private void initListener() {
@@ -104,6 +107,7 @@ public class WebViewActivity extends FragmentActivity {
         });
 
         tvRight.setOnClickListener(v -> {
+            isShowWindow = isShow();
             new FRDialog.CommonBuilder(this)
                     .setContentView(R.layout.article_dialog_bottom)
                     .setFromBottom()
@@ -121,20 +125,70 @@ public class WebViewActivity extends FragmentActivity {
                             if (RomUtils.checkFloatWindowPermission(WebViewActivity.this)) {
                                 //有权限，直接保存文章信息
                                 isShowWindow = true;
-                                SPUtil.setIntDefault(ARTICLE_ID, mArticleBean.getId());
-                                SPUtil.setStringDefault(ARTICLE_JUMP_URL, mArticleBean.getJumpUrl());
-                                SPUtil.setStringDefault(ARTICLE_IMAGE_URL, mArticleBean.getImageUrl());
-                                startService(new Intent(WebViewActivity.this, WindowShowService.class));
-                                finish();
+                                setSpDate(mArticleBean.getId(), mArticleBean.getJumpUrl(), mArticleBean.getImageUrl());
                             } else {
-                                //无权限，直接启动，后面会通过广播进行通知
-                                startService(new Intent(WebViewActivity.this, WindowShowService.class));
+                                isShowWindow = false;
+                                setSpDate(-1, "", "");
                             }
                         }
                         return true;
                     })
                     .show();
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        RomUtils.onActivityResult(this, requestCode, resultCode, data);
+    }
+
+    private void setSpDate(int id, String jumpUrl, String imageUrl) {
+        SPUtil.setIntDefault(ARTICLE_ID, id);
+        SPUtil.setStringDefault(ARTICLE_JUMP_URL, jumpUrl);
+        SPUtil.setStringDefault(ARTICLE_IMAGE_URL, imageUrl);
+        startService(new Intent(WebViewActivity.this, WindowShowService.class));
+        if (isShowWindow) {
+            finish();
+        }
+    }
+
+    private void showDialog() {
+        FRDialog dialog = new FRDialog.MDBuilder(this)
+                .setTitle("悬浮窗权限")
+                .setMessage("您的手机没有授予悬浮窗权限，请开启后再试")
+                .setPositiveContentAndListener("现在去开启", view -> {
+                    RomUtils.applyPermission(this, () -> {
+                        new Handler().postDelayed(() -> {
+                            if (!RomUtils.checkFloatWindowPermission(this)) {
+                                // 授权失败
+                                showDialog();
+                            } else {
+                                //授权成功
+                                isShowWindow = true;
+                                setSpDate(mArticleBean.getId(), mArticleBean.getJumpUrl(), mArticleBean.getImageUrl());
+                            }
+                        }, 500);
+                    });
+                    return true;
+                }).setNegativeContentAndListener("暂不开启", view -> true).create();
+        dialog.show();
+    }
+
+    public class MyReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();//得到Service发送的广播
+            if (BROAD_CAST_NAME.equals(action)) {
+                showDialog();
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(receiver);
     }
 
     @Override
@@ -177,37 +231,13 @@ public class WebViewActivity extends FragmentActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             webSetting.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
         }
-
         mWebView.loadUrl(mUrl);
-    }
-
-    public class MyReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();//得到Service发送的广播
-            if (BROAD_CAST_NAME.equals(action)) {
-                boolean isSuccess = intent.getBooleanExtra("permission", false);
-                if (isSuccess) {
-                    isShowWindow = true;
-                    SPUtil.setIntDefault(ARTICLE_ID, mArticleBean.getId());
-                    SPUtil.setStringDefault(ARTICLE_JUMP_URL, mArticleBean.getJumpUrl());
-                    SPUtil.setStringDefault(ARTICLE_IMAGE_URL, mArticleBean.getImageUrl());
-                    finish();
-                }
-            }
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        unregisterReceiver(receiver);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+        //点击悬浮窗进来之后是不会有弹窗的，返回之后才有，这里判断一下进来的场景
         if (mArticleBean == null && isShowWindow) {
             startService(new Intent(WebViewActivity.this, WindowShowService.class));
         }

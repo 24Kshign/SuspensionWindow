@@ -1,7 +1,6 @@
 package cn.jack.suspensionwindow
 
 import android.app.Application
-import cn.jack.test.window.ApplicationLifecycle
 
 /**
  * Created by manji

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CustomCancelView">
+        <attr name="view_radius" format="dimension" />
+        <attr name="view_color" format="color" />
+    </declare-styleable>
+</resources>

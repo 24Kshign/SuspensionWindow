@@ -161,6 +161,12 @@ class ApplicationLifecycle : Application.ActivityLifecycleCallbacks {
 
 ```
 
+### 11.19日更新
+
+![](https://ws1.sinaimg.cn/large/005MjwGuly1fxdgim9sbeg309j0hh49m.jpg)
+
+新增一个关闭悬浮窗的功能（和微信一样），详细代码请看 WindowUtil 中 onTouch 方法
+
 ### 参考
 
 - [Android 8.0 悬浮窗变动与用法](https://blog.csdn.net/mai763727999/article/details/78983375/)
