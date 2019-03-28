@@ -101,7 +101,7 @@ public class WindowUtil {
 
             mCancelViewLayoutParams.format = PixelFormat.RGBA_8888;   //窗口透明
             mCancelViewLayoutParams.gravity = Gravity.RIGHT | Gravity.BOTTOM;  //窗口位置
-            mCancelViewLayoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+            mCancelViewLayoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
             mCancelViewLayoutParams.width = DisplayUtil.dip2px(mCancelViewSize);
             mCancelViewLayoutParams.height = DisplayUtil.dip2px(mCancelViewSize);
             mWindowManager.addView(mCustomCancelView, mCancelViewLayoutParams);
@@ -112,7 +112,7 @@ public class WindowUtil {
             mLayoutParams.width = DisplayUtil.dip2px(mViewWidth);
             mLayoutParams.height = DisplayUtil.dip2px(mViewWidth);
             mLayoutParams.x = point.x;
-            mLayoutParams.y = point.y * 3 / 4;
+            mLayoutParams.y = point.y * 3 / 5;
             mWindowManager.addView(mView, mLayoutParams);
         }
     }
