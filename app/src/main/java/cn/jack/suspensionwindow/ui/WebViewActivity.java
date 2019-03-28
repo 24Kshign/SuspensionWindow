@@ -19,6 +19,7 @@ import cn.jack.suspensionwindow.R;
 import cn.jack.suspensionwindow.bean.ArticleBean;
 import cn.jack.suspensionwindow.util.SPUtil;
 import cn.jack.suspensionwindow.window.WindowShowService;
+import cn.jack.suspensionwindow.window.WindowUtil;
 import cn.jack.suspensionwindow.window.rom.RomUtils;
 import cn.jake.share.frdialog.dialog.FRDialog;
 
@@ -84,7 +85,7 @@ public class WebViewActivity extends FragmentActivity {
             mUrl = mArticleBean.getJumpUrl();
         } else {
             mUrl = getIntent().getStringExtra(URL);
-            stopService(new Intent(WebViewActivity.this, WindowShowService.class));
+            WindowUtil.getInstance().hideWindow();
         }
 
         isShowWindow = isShow();
@@ -187,6 +188,7 @@ public class WebViewActivity extends FragmentActivity {
 
     @Override
     protected void onDestroy() {
+        WindowUtil.getInstance().visibleWindow();
         super.onDestroy();
         unregisterReceiver(receiver);
     }

@@ -145,7 +145,7 @@ public class WindowUtil {
         //设置触摸滑动事件
         mView.setOnTouchListener(new View.OnTouchListener() {
             int startX, startY;  //起始点
-            boolean isMove;  //是否在移动
+            boolean isPerformClick;  //是否点击
             int finalMoveX;  //最后通过动画将mView的X轴坐标移动到finalMoveX
 
             boolean isRemove;
@@ -161,17 +161,20 @@ public class WindowUtil {
                     mDeleteRect.left += mView.getWidth() / 2;
                     mDeleteRect.top += mView.getHeight() / 2;
                 }
+                Log.d("click", "onTouch: " + event.getAction());
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         startX = (int) event.getX();
                         startY = (int) event.getY();
-
-                        isMove = false;
-                        mCustomCancelView.startAnimate(true);
+                        isPerformClick = true;
+                        mView.postDelayed(mDelayTouchRunnable, 500);
                         return true;
                     case MotionEvent.ACTION_MOVE:
                         //判断是CLICK还是MOVE
-                        isMove = Math.abs(startX - event.getX()) >= mTouchSlop || Math.abs(startY - event.getY()) >= mTouchSlop;
+                        //只要移动过，就认为不是点击
+                        if (Math.abs(startX - event.getX()) >= mTouchSlop || Math.abs(startY - event.getY()) >= mTouchSlop) {
+                            isPerformClick = false;
+                        }
 
                         mLayoutParams.x = (int) (event.getRawX() - startX);
                         //这里修复了刚开始移动的时候，悬浮窗的y坐标是不正确的，要减去状态栏的高度，可以将这个去掉运行体验一下
@@ -185,6 +188,10 @@ public class WindowUtil {
                                 mLayoutParams.y + ((mView.getMeasuredHeight() >> 1))));
                         return true;
                     case MotionEvent.ACTION_UP:
+                        mView.removeCallbacks(mDelayTouchRunnable);
+                        if (isPerformClick) {
+                            mView.performClick();
+                        }
                         isRemove = isRemove(mLayoutParams.x + (mView.getMeasuredWidth() >> 1),
                                 mLayoutParams.y + ((mView.getMeasuredHeight() >> 1)));
 
@@ -203,7 +210,7 @@ public class WindowUtil {
                             mCustomCancelView.startAnimate(false);
                             stickToSide();
                         }
-                        return isMove;
+                        return !isPerformClick;
                 }
                 return false;
             }
@@ -217,6 +224,13 @@ public class WindowUtil {
                 });
                 animator.start();
             }
+
+            private Runnable mDelayTouchRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    mCustomCancelView.startAnimate(true);
+                }
+            };
         });
     }
 
