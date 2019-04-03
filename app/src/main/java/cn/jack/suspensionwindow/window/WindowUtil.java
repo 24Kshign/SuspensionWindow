@@ -15,6 +15,8 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
@@ -111,8 +113,9 @@ public class WindowUtil {
             mLayoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
             mLayoutParams.width = DisplayUtil.dip2px(mViewWidth);
             mLayoutParams.height = DisplayUtil.dip2px(mViewWidth);
-            mLayoutParams.x = point.x;
-            mLayoutParams.y = point.y * 3 / 5;
+            // 可以修改View的初始位置
+//            mLayoutParams.x = 0;
+//            mLayoutParams.y = 0;
             mWindowManager.addView(mView, mLayoutParams);
         }
     }
@@ -167,7 +170,6 @@ public class WindowUtil {
                         startX = (int) event.getX();
                         startY = (int) event.getY();
                         isPerformClick = true;
-                        mView.postDelayed(mDelayTouchRunnable, 500);
                         return true;
                     case MotionEvent.ACTION_MOVE:
                         //判断是CLICK还是MOVE
@@ -188,7 +190,6 @@ public class WindowUtil {
                                 mLayoutParams.y + ((mView.getMeasuredHeight() >> 1))));
                         return true;
                     case MotionEvent.ACTION_UP:
-                        mView.removeCallbacks(mDelayTouchRunnable);
                         if (isPerformClick) {
                             mView.performClick();
                         }
@@ -217,20 +218,13 @@ public class WindowUtil {
 
             private void stickToSide() {
                 ValueAnimator animator = ValueAnimator.ofInt(mLayoutParams.x, finalMoveX).setDuration(Math.abs(mLayoutParams.x - finalMoveX));
-                animator.setInterpolator(new AccelerateDecelerateInterpolator());
+                animator.setInterpolator(new BounceInterpolator());
                 animator.addUpdateListener(animation -> {
                     mLayoutParams.x = (int) animation.getAnimatedValue();
                     updateViewLayout();
                 });
                 animator.start();
             }
-
-            private Runnable mDelayTouchRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    mCustomCancelView.startAnimate(true);
-                }
-            };
         });
     }
 

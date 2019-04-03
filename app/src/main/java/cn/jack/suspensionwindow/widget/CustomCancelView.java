@@ -39,7 +39,7 @@ public class CustomCancelView extends View {
     private float mTouchExpand = 20;
     private boolean isInSide = false;
     private boolean isInit = true;
-    private int defaultSiae = 150;
+    private int defaultSize = 150;
 
     public CustomCancelView(Context context) {
         this(context, null);
@@ -101,7 +101,7 @@ public class CustomCancelView extends View {
                         mState = STATE_NORMAL | (isOpen ? OPEN_MASK : CLOSE_MASK);
                     }
                 })
-                .setStartDelay(100)
+                .setStartDelay(500)
                 .start();
     }
 
@@ -127,7 +127,7 @@ public class CustomCancelView extends View {
         if (mode == MeasureSpec.EXACTLY) {
             width = size;
         } else {
-            width = DisplayUtil.dip2px(defaultSiae);
+            width = DisplayUtil.dip2px(defaultSize);
         }
 
         mode = MeasureSpec.getMode(heightMeasureSpec);
@@ -135,14 +135,9 @@ public class CustomCancelView extends View {
         if (mode == MeasureSpec.EXACTLY) {
             height = size;
         } else {
-            height = DisplayUtil.dip2px(defaultSiae);
+            height = DisplayUtil.dip2px(defaultSize);
         }
         setMeasuredDimension(width, height);
         mRadius = Math.min(width, height) - mTouchExpand;
-    }
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
-        return false;
     }
 }
